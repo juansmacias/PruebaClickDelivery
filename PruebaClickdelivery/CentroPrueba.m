@@ -67,7 +67,7 @@ static CentroPrueba* instancia =nil;
         
         int puntaje = 0;
         
-        puntaje+=actual.temperatura.intValue;
+        puntaje+=(actual.temperatura.intValue/2);
         
         if ([actual.descripcionClima isEqual:@"Despejado"]) {
             puntaje+=20;
