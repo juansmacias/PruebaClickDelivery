@@ -33,6 +33,12 @@
     else
     {
         posCamara = [GMSCameraPosition cameraWithLatitude:4.719722 longitude:-74.036667 zoom:1];
+        CLLocation* cl = [[CLLocation alloc] initWithLatitude:4.719722 longitude:-74.036667];
+        dispatch_queue_t colaT = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+        dispatch_async(colaT, ^{
+            [self buscarClimaCiudad:cl.coordinate ConNumeroC:1];
+            
+        });
     }
     self.viewMapa.delegate = self;
     [self.viewMapa setCamera:posCamara];
@@ -41,7 +47,20 @@
         self.viewMapa.myLocationEnabled = YES;
     });
     
+    UIAlertController *alerta = [UIAlertController alertControllerWithTitle:@"Bienvenidos!" message:@"Vas o te quedas? es una app facil de usar que te ayuda a decidir si irte de viaje o mejor quedarse donde estas." preferredStyle:UIAlertControllerStyleAlert];
     
+    UIAlertAction* salir = [UIAlertAction actionWithTitle:@"Salir" style:UIAlertActionStyleCancel handler:^(UIAlertAction * action){
+        
+    }];
+    
+    [alerta addAction:salir];
+    UIAlertAction* siguiente = [UIAlertAction actionWithTitle:@"Continuar" style:UIAlertActionStyleDefault
+                                                          handler:^(UIAlertAction * action) {
+                                                              [self mostrarAlertaInstruciones];
+                                                          }];
+    [alerta addAction:siguiente];
+
+    [self presentViewController:alerta animated:YES completion:nil];
 }
 
 #pragma mark - Metodos Vista
@@ -116,18 +135,21 @@
     CentroPrueba* centro = [CentroPrueba darInstancia];
     NSNumber* numeroCiudad = marker.userData;
     Ciudad* buscada = [centro darCiudadPorID:numeroCiudad.intValue];
-    if (numeroCiudad.intValue==1) {
-        info.lblTitulo.text = @"Ciudad Inicial";
-        info.lblTitulo.textColor = [UIColor redColor];
-    }
-    else if (numeroCiudad.intValue==2)
+    if(buscada!=nil)
     {
-        info.lblTitulo.text = @"Ciudad Final";
-        info.lblTitulo.textColor = [UIColor greenColor];
+        if (numeroCiudad.intValue==1) {
+            info.lblTitulo.text = @"Ciudad Inicial";
+            info.lblTitulo.textColor = [UIColor redColor];
+        }
+        else if (numeroCiudad.intValue==2)
+        {
+            info.lblTitulo.text = @"Ciudad Final";
+            info.lblTitulo.textColor = [UIColor greenColor];
+        }
+        info.lblCiudad.text = buscada.nombreCiudad;
+        info.lblClima.text = buscada.descripcionClima;
+        info.lblTemperatura.text = [NSString stringWithFormat:@"%d °C",buscada.temperatura.intValue];
     }
-    info.lblCiudad.text = buscada.nombreCiudad;
-    info.lblClima.text = buscada.descripcionClima;
-    info.lblTemperatura.text = [NSString stringWithFormat:@"%d °C",buscada.temperatura.intValue];
     return info;
 }
 
@@ -148,6 +170,39 @@ didTapAtCoordinate	:(CLLocationCoordinate2D)coordinate
         NSNumber* numeroC = marker.userData;
         [self buscarClimaCiudad:marker.position ConNumeroC: numeroC.intValue];
     });
+}
+
+#pragma mark - Alertas
+
+-(void)mostrarAlertaInstruciones
+{
+        UIAlertController *alerta = [UIAlertController alertControllerWithTitle:@"Instrucciones" message:@"Tu ubicacion inicial sera tu ciudad inicial y para seleccionar tu ciudad final solo tienes que seleccionar una ciudad en el mapa." preferredStyle:UIAlertControllerStyleAlert];
+    
+    UIAlertAction* salir = [UIAlertAction actionWithTitle:@"Salir" style:UIAlertActionStyleCancel handler:^(UIAlertAction * action){
+        
+    }];
+    
+    [alerta addAction:salir];
+    UIAlertAction* siguiente = [UIAlertAction actionWithTitle:@"Continuar" style:UIAlertActionStyleDefault
+                                                      handler:^(UIAlertAction * action) {
+                                                          [self mostrarAlertaFinal];
+                                                      }];
+    [alerta addAction:siguiente];
+    
+    [self presentViewController:alerta animated:YES completion:nil];
+}
+
+-(void)mostrarAlertaFinal
+{
+    UIAlertController *alerta = [UIAlertController alertControllerWithTitle:@"Instrucciones" message:@"Al seleccionar las dos ciudades de tu preferencia podras averiguar si te vas o te quedas!" preferredStyle:UIAlertControllerStyleAlert];
+    
+    UIAlertAction* siguiente = [UIAlertAction actionWithTitle:@"Comenzar" style:UIAlertActionStyleDefault
+                                                      handler:^(UIAlertAction * action) {
+                                                        
+                                                      }];
+    [alerta addAction:siguiente];
+    
+    [self presentViewController:alerta animated:YES completion:nil];
 }
 
 
