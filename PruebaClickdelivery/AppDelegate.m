@@ -8,15 +8,30 @@
 
 #import "AppDelegate.h"
 
+
 @interface AppDelegate ()
 
 @end
 
 @implementation AppDelegate
 
+@synthesize urlBaseClima = _urlBaseClima;
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    // Override point for customization after application launch.
+    
+    self.locationManager = [[CLLocationManager alloc]init];
+    self.locationManager.desiredAccuracy = kCLLocationAccuracyBest;
+    self.locationManager.delegate = self;
+    [self.locationManager startUpdatingLocation];
+    [self.locationManager requestWhenInUseAuthorization];
+    self.localizacionActual = [self.locationManager location];
+    ;
+    
+    [GMSServices provideAPIKey:@"AIzaSyBaLVj8Rn_O6uWdZW8ECD8otOddeZt4R6M"];
+    
+    self.urlBaseClima = @"http://api.wunderground.com/api/50b8be86614e1c6d";
+    
+    [CentroPrueba darInstancia];
     return YES;
 }
 
@@ -40,6 +55,11 @@
 
 - (void)applicationWillTerminate:(UIApplication *)application {
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
+}
+
++ (AppDelegate *)sharedAppDelegate
+{
+    return (AppDelegate *)[[UIApplication sharedApplication] delegate];
 }
 
 @end
